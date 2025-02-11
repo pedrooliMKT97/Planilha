@@ -4,42 +4,15 @@
     <meta charset="UTF-8">
     <title>Correção de Dados de Produtos</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-            margin-bottom: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
+        /* Estilos mantidos iguais */
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        textarea { width: 100%; height: 150px; margin-bottom: 10px; }
+        button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
     </style>
 </head>
 <body>
@@ -48,8 +21,8 @@
         
         <textarea id="inputData" placeholder="Cole seus dados aqui diretamente da planilha:
 Exemplo:
-Frago a pescativo marinado No Ponto kg    R$15,99    R$12,99    -1%
-Ponta de Alcatra bovina kg    $545,90    $537,99    -17%"></textarea>
+Frango marinado kg     R$15,99    R$12,99    -1%    6kg
+Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
         
         <button onclick="processData()">Processar Dados</button>
         
@@ -61,6 +34,8 @@ Ponta de Alcatra bovina kg    $545,90    $537,99    -17%"></textarea>
                     <th>Preço App (Reais)</th>
                     <th>Preço App (Centavos)</th>
                     <th>Desconto</th>
+                    <th>Limite (Qtd)</th>
+                    <th>Limite (Unidade)</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -69,35 +44,14 @@ Ponta de Alcatra bovina kg    $545,90    $537,99    -17%"></textarea>
 
     <script>
         function correctText(text) {
-            // Corrige erros comuns e acentos
+            // Correções de texto e unidades na descrição
             const corrections = {
-                'pct': 'pacote',
-                'file': 'filé',
-                'spatem': 'spaten',
-                'hig': 'higiênico',
-                'Pernil': 'Pernil',
-                'suino': 'suíno',
-                'Eltezinho': 'Filezinho',
-                'G.V.Us': 'GV Us',
-                'kg': 'kg',
-                'R$': '',
-                '$': ''
+                'kg': 'kg', 'unid': 'unid', 'Gr': 'g', 
+                'ml': 'mL', 'Litro': 'L', 'Pacote': 'pacote'
             };
-
+            
             return text.split(' ').map(word => {
-                // Corrige palavras específicas
-                if (corrections[word]) return corrections[word];
-                
-                // Adiciona acentos (exemplo básico)
-                const accentMap = {
-                    'file': 'filé',
-                    'musculo': 'músculo',
-                    'perdigao': 'perdigão',
-                    'tradicional': 'tradicional',
-                    'empanado': 'empanado'
-                };
-                
-                return accentMap[word.toLowerCase()] || word;
+                return corrections[word] || word;
             }).join(' ');
         }
 
@@ -108,35 +62,35 @@ Ponta de Alcatra bovina kg    $545,90    $537,99    -17%"></textarea>
             tableBody.innerHTML = '';
 
             for (const line of lines) {
-                // Divide as colunas com base em múltiplos espaços ou tabulações
+                // Divide colunas por múltiplos espaços
                 const columns = line.split(/\s{2,}/).map(col => col.trim());
                 
-                // Extrai os dados (ajuste conforme o formato da sua planilha)
-                const desc = columns[0] || '';
-                const normalPrice = columns[1] || '';
-                const appPrice = columns[2] || '';
-                const discount = columns[3] || '';
+                // Extrai as colunas (ajuste os índices conforme sua planilha)
+                const [desc, normalPrice, appPrice, discount, limit] = columns;
 
-                // Processa Descrição
-                const correctedDesc = correctText(desc);
+                // Processa LIMITE
+                const limitMatch = limit?.match(/(\d+)(\D+)/) || ['','',''];
+                let [qtd, unit] = [limitMatch[1], limitMatch[2].toLowerCase()];
+                
+                // Padroniza unidades
+                unit = unit.replace(/[^a-z]/g, ''); // Remove números extras
+                if(['un', 'uni', 'unid'].includes(unit)) unit = 'unid';
+                if(['kg', 'kilo', 'quilo'].includes(unit)) unit = 'kg';
+                if(['l', 'litro'].includes(unit)) unit = 'L';
 
-                // Processa Preço Normal
-                const cleanNormalPrice = normalPrice.replace('R$', '').replace('$', '').replace(',', '.').trim();
+                // Processa PREÇOS
+                const [reais, centavos] = appPrice.replace('R$','').replace(',','.').split('.');
 
-                // Processa Preço App
-                const appPriceClean = appPrice.replace('R$', '').replace('$', '').replace(',', '.').trim();
-                const [reais, centavos = '00'] = appPriceClean.includes('.') ? 
-                    appPriceClean.split('.') : 
-                    [appPriceClean, '00'];
-
-                // Cria nova linha na tabela
+                // Cria nova linha
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
-                    <td>${correctedDesc}</td>
-                    <td>${cleanNormalPrice}</td>
+                    <td>${correctText(desc)}</td>
+                    <td>${normalPrice.replace('R$','')}</td>
                     <td>${reais}</td>
-                    <td>.${centavos}</td>
+                    <td>,${centavos?.padEnd(2,'0') || '00'}</td>
                     <td>${discount}</td>
+                    <td>${qtd}</td>
+                    <td>${unit}</td>
                 `;
                 tableBody.appendChild(newRow);
             }
