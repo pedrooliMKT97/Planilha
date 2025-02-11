@@ -5,17 +5,62 @@
     <title>Correção de Dados</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <style>
-        /* Estilos anteriores mantidos */
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            background-color: black;
+        /* Efeitos de background */
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background-color: #000;
+            overflow-x: hidden;
+            position: relative;
+            font-family: Arial, sans-serif;
             color: white;
         }
-        .container { 
-            max-width: 1000px; 
-            margin: 0 auto;
+
+        .background-effects {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
         }
+
+        .lightning {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: linear-gradient(
+                45deg,
+                transparent 45%,
+                rgba(240, 105, 10, 0.2) 50%,
+                transparent 55%
+            );
+            animation: lightning 4s linear infinite;
+        }
+
+        @keyframes lightning {
+            0% { transform: translate(-50%, -50%) rotate(45deg); }
+            100% { transform: translate(50%, 50%) rotate(45deg); }
+        }
+
+        .glow {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 50%, 
+                rgba(240, 105, 10, 0.1) 0%, 
+                rgba(0, 0, 0, 1) 70%);
+            z-index: 1;
+        }
+
+        /* Estilos do container e conteúdo */
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
         h1 {
             font-family: 'Montserrat', sans-serif;
             font-weight: 900;
@@ -23,36 +68,42 @@
             font-size: 2.5rem;
             margin-bottom: 20px;
         }
-        table { 
-            border-collapse: collapse; 
-            width: 100%; 
-            margin-top: 20px; 
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
         }
-        th, td { 
-            border: 1px solid #0a0a0a; 
-            padding: 8px; 
-            text-align: left; 
+
+        th, td {
+            border: 1px solid #0a0a0a;
+            padding: 8px;
+            text-align: left;
             color: white;
         }
-        th { 
+
+        th {
             background-color: #333;
         }
-        textarea { 
-            width: 100%; 
-            height: 150px; 
-            margin-bottom: 10px; 
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
             background-color: #333;
             color: white;
             border: 1px solid #555;
         }
-        button { 
-            padding: 10px 20px; 
+
+        button {
+            padding: 10px 20px;
             background-color: #f0690a;
             color: black;
             border: none;
             cursor: pointer;
         }
-        button:hover { 
+
+        button:hover {
             background-color: #e65c00;
         }
 
@@ -69,6 +120,7 @@
             justify-content: center;
             align-items: center;
         }
+
         .modal-content {
             background-color: #333;
             padding: 20px;
@@ -77,6 +129,7 @@
             max-width: 600px;
             position: relative;
         }
+
         .close {
             color: white;
             font-size: 24px;
@@ -85,6 +138,7 @@
             right: 10px;
             cursor: pointer;
         }
+
         .copy-btn {
             background-color: #f0690a;
             color: black;
@@ -96,6 +150,13 @@
     </style>
 </head>
 <body>
+    <!-- Efeitos de background -->
+    <div class="background-effects">
+        <div class="lightning"></div>
+        <div class="glow"></div>
+    </div>
+
+    <!-- Conteúdo principal -->
     <div class="container">
         <h1>Corretor de Dados</h1>
         
@@ -181,17 +242,14 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
             }
         }
 
-        // Funções para o modal e cópia
         function showExportModal() {
             const modal = document.getElementById('exportModal');
             const content = document.getElementById('exportContent');
             const headers = document.querySelectorAll('#resultTable th');
             const rows = document.querySelectorAll('#tableBody tr');
             
-            // Adiciona cabeçalhos
             let text = Array.from(headers).map(header => header.innerText).join('\t') + '\n';
             
-            // Adiciona linhas de dados
             rows.forEach(row => {
                 const cells = row.querySelectorAll('td');
                 text += Array.from(cells).map(cell => cell.innerText).join('\t') + '\n';
@@ -212,7 +270,6 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
                 .catch(err => console.error('Erro ao copiar:', err));
         }
 
-        // Fechar modal ao clicar fora
         window.onclick = function(event) {
             const modal = document.getElementById('exportModal');
             if (event.target === modal) {
