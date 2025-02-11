@@ -46,10 +46,10 @@
     <div class="container">
         <h1>Corretor de Dados de Produtos</h1>
         
-        <textarea id="inputData" placeholder="Cole seus dados aqui no formato:
-Código | Descrição | Preço Normal | Preço App | Desconto | Limite
+        <textarea id="inputData" placeholder="Cole seus dados aqui diretamente da planilha:
 Exemplo:
-91917 | Macarrão Adria Ovos 500g (ESPAGUETE E PARAFUSO) | 3.99 | 2.89 | 27.57% | 6kg"></textarea>
+Frago a pescativo marinado No Ponto kg    R$15,99    R$12,99    -1%
+Ponta de Alcatra bovina kg    $545,90    $537,99    -17%"></textarea>
         
         <button onclick="processData()">Processar Dados</button>
         
@@ -61,8 +61,6 @@ Exemplo:
                     <th>Preço App (Reais)</th>
                     <th>Preço App (Centavos)</th>
                     <th>Desconto</th>
-                    <th>Limite (Quantidade)</th>
-                    <th>Limite (Unidade)</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -73,20 +71,17 @@ Exemplo:
         function correctText(text) {
             // Corrige erros comuns e acentos
             const corrections = {
-                'ESPAGUETE': 'Espaguete',
-                'PARAFUSO': 'Parafuso',
-                'Gr': 'g',
-                'Kg': 'kg',
-                'Quilo': 'kg',
-                'Kilo': 'kg',
-                'un': 'unid',
-                'UNI': 'unid',
-                'UN': 'unid',
-                'ml': 'mL',
-                'L': 'L',
-                'Litro': 'L',
-                'Pack': 'pack',
-                'Cada': 'cada'
+                'Frago': 'Frango',
+                'pescativo': 'pescado',
+                'Alcatra': 'Alcatra',
+                'Língula': 'Linguiça',
+                'Pernil': 'Pernil',
+                'sumo': 'suíno',
+                'Eltezinho': 'Filezinho',
+                'G.V.Us': 'GV Us',
+                'kg': 'kg',
+                'R$': '',
+                '$': ''
             };
 
             return text.split(' ').map(word => {
@@ -95,13 +90,11 @@ Exemplo:
                 
                 // Adiciona acentos (exemplo básico)
                 const accentMap = {
-                    'pao': 'pão',
-                    'francês': 'francês',
-                    'gratinado': 'gratinado',
-                    'polvilho': 'polvilho',
-                    'banana': 'banana',
-                    'laranja': 'laranja',
-                    'amanteigado': 'amanteigado'
+                    'marinado': 'marinado',
+                    'bovina': 'bovina',
+                    'gourmet': 'gourmet',
+                    'tradicional': 'tradicional',
+                    'empanado': 'empanado'
                 };
                 
                 return accentMap[word.toLowerCase()] || word;
@@ -115,30 +108,26 @@ Exemplo:
             tableBody.innerHTML = '';
 
             for (const line of lines) {
-                const [codigo, desc, normalPrice, appPrice, discount, limit] = line.split('|').map(item => item.trim());
+                // Divide as colunas com base em múltiplos espaços ou tabulações
+                const columns = line.split(/\s{2,}/).map(col => col.trim());
                 
+                // Extrai os dados (ajuste conforme o formato da sua planilha)
+                const desc = columns[0] || '';
+                const normalPrice = columns[1] || '';
+                const appPrice = columns[2] || '';
+                const discount = columns[3] || '';
+
                 // Processa Descrição
                 const correctedDesc = correctText(desc);
 
                 // Processa Preço Normal
-                const cleanNormalPrice = normalPrice.replace('R$', '').trim();
+                const cleanNormalPrice = normalPrice.replace('R$', '').replace('$', '').replace(',', '.').trim();
 
                 // Processa Preço App
-                const appPriceClean = appPrice.replace('R$', '').trim();
+                const appPriceClean = appPrice.replace('R$', '').replace('$', '').replace(',', '.').trim();
                 const [reais, centavos = '00'] = appPriceClean.includes('.') ? 
                     appPriceClean.split('.') : 
                     [appPriceClean, '00'];
-
-                // Processa Limite
-                const limitMatch = limit.match(/(\d+)(\D+)/);
-                let [limitQty, limitUnit] = limitMatch ? [limitMatch[1], limitMatch[2]] : ['', ''];
-                
-                // Padroniza unidades
-                limitUnit = limitUnit.toLowerCase();
-                if (['un', 'uni', 'unid'].includes(limitUnit)) limitUnit = 'unid';
-                if (['kg', 'kilo', 'quilo'].includes(limitUnit)) limitUnit = 'kg';
-                if (['l', 'litro'].includes(limitUnit)) limitUnit = 'L';
-                if (['ml'].includes(limitUnit)) limitUnit = 'mL';
 
                 // Cria nova linha na tabela
                 const newRow = document.createElement('tr');
@@ -148,8 +137,6 @@ Exemplo:
                     <td>${reais}</td>
                     <td>.${centavos}</td>
                     <td>${discount}</td>
-                    <td>${limitQty}</td>
-                    <td>${limitUnit}</td>
                 `;
                 tableBody.appendChild(newRow);
             }
