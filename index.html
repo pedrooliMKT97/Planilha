@@ -69,6 +69,27 @@
             margin-bottom: 20px;
         }
 
+        /* Estilo da caixa de texto */
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+            background-color: transparent; /* Fundo transparente */
+            border: 2px solid #ff4500; /* Borda laranja neon */
+            border-radius: 15px; /* Bordas arredondadas */
+            color: white; /* Texto branco */
+            padding: 10px;
+            font-size: 16px;
+            outline: none; /* Remove o contorno ao focar */
+            box-shadow: 0 0 10px #ff4500, 0 0 20px #ff4500; /* Efeito neon */
+            transition: box-shadow 0.3s ease;
+        }
+
+        textarea:focus {
+            box-shadow: 0 0 15px #ff4500, 0 0 30px #ff4500; /* Efeito neon mais forte ao focar */
+        }
+
+        /* Estilos da tabela */
         table {
             border-collapse: collapse;
             width: 100%;
@@ -86,21 +107,14 @@
             background-color: #333;
         }
 
-        textarea {
-            width: 100%;
-            height: 150px;
-            margin-bottom: 10px;
-            background-color: #333;
-            color: white;
-            border: 1px solid #555;
-        }
-
+        /* Estilos dos botões */
         button {
             padding: 10px 20px;
             background-color: #f0690a;
             color: black;
             border: none;
             cursor: pointer;
+            border-radius: 5px;
         }
 
         button:hover {
