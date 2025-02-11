@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Correção de Dados</title>
-    <!-- Importação da fonte Montserrat -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <style>
-        /* Estilos atualizados */
+        /* Estilos anteriores mantidos */
         body { 
             font-family: Arial, sans-serif; 
             margin: 20px; 
-            background-color: black; /* Fundo preto */
-            color: orange; /* Texto branco para contraste */
+            background-color: black;
+            color: orange;
         }
         .container { 
             max-width: 1000px; 
-            margin: 0 auto; 
+            margin: 0 auto;
         }
         h1 {
-            font-family: 'Montserrat', sans-serif; /* Aplica a fonte Montserrat */
-            font-weight: 900; /* Define o peso da fonte como Black */
-            text-align: center; /* Centraliza o texto */
-            font-size: 2.5rem; /* Aumenta o tamanho da fonte */
-            margin-bottom: 20px; /* Adiciona um espaçamento abaixo do título */
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
         }
         table { 
             border-collapse: collapse; 
@@ -33,28 +32,66 @@
             border: 1px solid #0a0a0a; 
             padding: 8px; 
             text-align: left; 
-            color: white; /* Texto branco nas células da tabela */
+            color: white;
         }
         th { 
-            background-color: #333; /* Fundo mais escuro para o cabeçalho da tabela */
+            background-color: #333;
         }
         textarea { 
             width: 100%; 
             height: 150px; 
             margin-bottom: 10px; 
-            background-color: #333; /* Fundo escuro para o textarea */
-            color: white; /* Texto branco no textarea */
-            border: 1px solid #555; /* Borda mais clara para o textarea */
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
         }
         button { 
             padding: 10px 20px; 
-            background-color: #f0690a; /* Botão laranja */
-            color: black; /* Texto preto no botão */
-            border: none; 
-            cursor: pointer; 
+            background-color: #f0690a;
+            color: black;
+            border: none;
+            cursor: pointer;
         }
         button:hover { 
-            background-color: #e65c00; /* Laranja mais escuro ao passar o mouse */
+            background-color: #e65c00;
+        }
+
+        /* Estilos para o modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+        .close {
+            color: white;
+            font-size: 24px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+        .copy-btn {
+            background-color: #f0690a;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -83,11 +120,22 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
+
+        <!-- Botão para exportar dados -->
+        <button onclick="showExportModal()" style="margin-top: 20px;">Exportar Dados</button>
+
+        <!-- Modal para exibir e copiar dados -->
+        <div id="exportModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <pre id="exportContent"></pre>
+                <button class="copy-btn" onclick="copyToClipboard()">Copiar</button>
+            </div>
+        </div>
     </div>
 
     <script>
         function correctText(text) {
-            // Correções de texto e unidades na descrição
             const corrections = {
                 'kg': 'kg', 'unid': 'unid', 'Gr': 'g', 
                 'ml': 'mL', 'Litro': 'L', 'Pacote': 'pacote'
@@ -105,27 +153,20 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
             tableBody.innerHTML = '';
 
             for (const line of lines) {
-                // Divide colunas por múltiplos espaços
                 const columns = line.split(/\s{2,}/).map(col => col.trim());
-                
-                // Extrai as colunas (ajuste os índices conforme sua planilha)
                 const [desc, normalPrice, appPrice, discount, limit] = columns;
 
-                // Processa LIMITE
                 const limitMatch = limit?.match(/(\d+)(\D+)/) || ['','',''];
-                const qnt = limitMatch[0]; // Mantém o formato original (ex: 6kg)
-                let unit = limitMatch[2].toLowerCase(); // Extrai a unidade
+                const qnt = limitMatch[0];
+                let unit = limitMatch[2].toLowerCase();
 
-                // Padroniza unidades
-                unit = unit.replace(/[^a-z]/g, ''); // Remove números extras
+                unit = unit.replace(/[^a-z]/g, '');
                 if(['un', 'uni', 'unid'].includes(unit)) unit = 'unid';
                 if(['kg', 'kilo', 'quilo'].includes(unit)) unit = 'kg';
                 if(['l', 'litro'].includes(unit)) unit = 'L';
 
-                // Processa PREÇOS
                 const [reais, centavos] = appPrice.replace('R$','').replace(',','.').split('.');
 
-                // Cria nova linha
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
                     <td>${correctText(desc)}</td>
@@ -139,6 +180,41 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
                 tableBody.appendChild(newRow);
             }
         }
+
+        // Funções para o modal e cópia
+        function showExportModal() {
+            const modal = document.getElementById('exportModal');
+            const content = document.getElementById('exportContent');
+            const rows = document.querySelectorAll('#tableBody tr');
+            
+            let text = '';
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                text += Array.from(cells).map(cell => cell.innerText).join('\t') + '\n';
+            });
+
+            content.textContent = text;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('exportModal').style.display = 'none';
+        }
+
+        function copyToClipboard() {
+            const content = document.getElementById('exportContent').textContent;
+            navigator.clipboard.writeText(content)
+                .then(() => alert('Conteúdo copiado!'))
+                .catch(err => console.error('Erro ao copiar:', err));
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('exportModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
     </script>
 </body>
 </html>
