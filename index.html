@@ -56,7 +56,7 @@ Ponta de Alcatra bovina kg    $545,90    $537,99    -17%"></textarea>
         <table id="resultTable">
             <thead>
                 <tr>
-                    <th>Descrição Corrigida</th>
+                    <th>Descrição</th>
                     <th>Preço Normal</th>
                     <th>Preço App (Reais)</th>
                     <th>Preço App (Centavos)</th>
@@ -71,12 +71,12 @@ Ponta de Alcatra bovina kg    $545,90    $537,99    -17%"></textarea>
         function correctText(text) {
             // Corrige erros comuns e acentos
             const corrections = {
-                'Frago': 'Frango',
-                'pescativo': 'pescado',
-                'Alcatra': 'Alcatra',
-                'Língula': 'Linguiça',
+                'pct': 'pacote',
+                'file': 'filé',
+                'spatem': 'spaten',
+                'hig': 'higiênico',
                 'Pernil': 'Pernil',
-                'sumo': 'suíno',
+                'suino': 'suíno',
                 'Eltezinho': 'Filezinho',
                 'G.V.Us': 'GV Us',
                 'kg': 'kg',
@@ -90,9 +90,9 @@ Ponta de Alcatra bovina kg    $545,90    $537,99    -17%"></textarea>
                 
                 // Adiciona acentos (exemplo básico)
                 const accentMap = {
-                    'marinado': 'marinado',
-                    'bovina': 'bovina',
-                    'gourmet': 'gourmet',
+                    'file': 'filé',
+                    'musculo': 'músculo',
+                    'perdigao': 'perdigão',
                     'tradicional': 'tradicional',
                     'empanado': 'empanado'
                 };
