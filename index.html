@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif; 
             margin: 20px; 
             background-color: black;
-            color: orange;
+            color: white;
         }
         .container { 
             max-width: 1000px; 
@@ -185,9 +185,13 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
         function showExportModal() {
             const modal = document.getElementById('exportModal');
             const content = document.getElementById('exportContent');
+            const headers = document.querySelectorAll('#resultTable th');
             const rows = document.querySelectorAll('#tableBody tr');
             
-            let text = '';
+            // Adiciona cabeçalhos
+            let text = Array.from(headers).map(header => header.innerText).join('\t') + '\n';
+            
+            // Adiciona linhas de dados
             rows.forEach(row => {
                 const cells = row.querySelectorAll('td');
                 text += Array.from(cells).map(cell => cell.innerText).join('\t') + '\n';
