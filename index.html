@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Correção de Dados de Produtos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Corretor de Dados de Produtos</h1>
+        
+        <textarea id="inputData" placeholder="Cole seus dados aqui no formato:
+Código | Descrição | Preço Normal | Preço App | Desconto | Limite
+Exemplo:
+91917 | Macarrão Adria Ovos 500g (ESPAGUETE E PARAFUSO) | 3.99 | 2.89 | 27.57% | 6kg"></textarea>
+        
+        <button onclick="processData()">Processar Dados</button>
+        
+        <table id="resultTable">
+            <thead>
+                <tr>
+                    <th>Descrição Corrigida</th>
+                    <th>Preço Normal</th>
+                    <th>Preço App (Reais)</th>
+                    <th>Preço App (Centavos)</th>
+                    <th>Desconto</th>
+                    <th>Limite (Quantidade)</th>
+                    <th>Limite (Unidade)</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function correctText(text) {
+            // Corrige erros comuns e acentos
+            const corrections = {
+                'ESPAGUETE': 'Espaguete',
+                'PARAFUSO': 'Parafuso',
+                'Gr': 'g',
+                'Kg': 'kg',
+                'Quilo': 'kg',
+                'Kilo': 'kg',
+                'un': 'unid',
+                'UNI': 'unid',
+                'UN': 'unid',
+                'ml': 'mL',
+                'L': 'L',
+                'Litro': 'L',
+                'Pack': 'pack',
+                'Cada': 'cada'
+            };
+
+            return text.split(' ').map(word => {
+                // Corrige palavras específicas
+                if (corrections[word]) return corrections[word];
+                
+                // Adiciona acentos (exemplo básico)
+                const accentMap = {
+                    'pao': 'pão',
+                    'francês': 'francês',
+                    'gratinado': 'gratinado',
+                    'polvilho': 'polvilho',
+                    'banana': 'banana',
+                    'laranja': 'laranja',
+                    'amanteigado': 'amanteigado'
+                };
+                
+                return accentMap[word.toLowerCase()] || word;
+            }).join(' ');
+        }
+
+        function processData() {
+            const input = document.getElementById('inputData').value;
+            const lines = input.split('\n').filter(line => line.trim() !== '');
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            for (const line of lines) {
+                const [codigo, desc, normalPrice, appPrice, discount, limit] = line.split('|').map(item => item.trim());
+                
+                // Processa Descrição
+                const correctedDesc = correctText(desc);
+
+                // Processa Preço Normal
+                const cleanNormalPrice = normalPrice.replace('R$', '').trim();
+
+                // Processa Preço App
+                const appPriceClean = appPrice.replace('R$', '').trim();
+                const [reais, centavos = '00'] = appPriceClean.includes('.') ? 
+                    appPriceClean.split('.') : 
+                    [appPriceClean, '00'];
+
+                // Processa Limite
+                const limitMatch = limit.match(/(\d+)(\D+)/);
+                let [limitQty, limitUnit] = limitMatch ? [limitMatch[1], limitMatch[2]] : ['', ''];
+                
+                // Padroniza unidades
+                limitUnit = limitUnit.toLowerCase();
+                if (['un', 'uni', 'unid'].includes(limitUnit)) limitUnit = 'unid';
+                if (['kg', 'kilo', 'quilo'].includes(limitUnit)) limitUnit = 'kg';
+                if (['l', 'litro'].includes(limitUnit)) limitUnit = 'L';
+                if (['ml'].includes(limitUnit)) limitUnit = 'mL';
+
+                // Cria nova linha na tabela
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${correctedDesc}</td>
+                    <td>${cleanNormalPrice}</td>
+                    <td>${reais}</td>
+                    <td>.${centavos}</td>
+                    <td>${discount}</td>
+                    <td>${limitQty}</td>
+                    <td>${limitUnit}</td>
+                `;
+                tableBody.appendChild(newRow);
+            }
+        }
+    </script>
+</body>
+</html>
