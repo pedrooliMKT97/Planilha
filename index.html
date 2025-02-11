@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Correção de Dados de Produtos</title>
+    <title>Correção de Dados</title>
     <style>
         /* Estilos mantidos iguais */
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -29,13 +29,13 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
         <table id="resultTable">
             <thead>
                 <tr>
-                    <th>Descrição</th>
+                    <th>Descrição Corrigida</th>
                     <th>Preço Normal</th>
                     <th>Preço App (Reais)</th>
                     <th>Preço App (Centavos)</th>
                     <th>Desconto</th>
-                    <th>Limite (Qtd)</th>
-                    <th>Limite (Unidade)</th>
+                    <th>Qnt</th>
+                    <th>Unidade</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -47,7 +47,7 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
             // Correções de texto e unidades na descrição
             const corrections = {
                 'kg': 'kg', 'unid': 'unid', 'Gr': 'g', 
-                'ml': 'mL', 'Litro': 'L', 'pct': 'pacote'
+                'ml': 'mL', 'Litro': 'L', 'Pacote': 'pacote'
             };
             
             return text.split(' ').map(word => {
@@ -70,8 +70,9 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
 
                 // Processa LIMITE
                 const limitMatch = limit?.match(/(\d+)(\D+)/) || ['','',''];
-                let [qtd, unit] = [limitMatch[1], limitMatch[2].toLowerCase()];
-                
+                const qnt = limitMatch[0]; // Mantém o formato original (ex: 6kg)
+                let unit = limitMatch[2].toLowerCase(); // Extrai a unidade
+
                 // Padroniza unidades
                 unit = unit.replace(/[^a-z]/g, ''); // Remove números extras
                 if(['un', 'uni', 'unid'].includes(unit)) unit = 'unid';
@@ -89,7 +90,7 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
                     <td>${reais}</td>
                     <td>,${centavos?.padEnd(2,'0') || '00'}</td>
                     <td>${discount}</td>
-                    <td>${qtd}</td>
+                    <td>${qnt}</td>
                     <td>${unit}</td>
                 `;
                 tableBody.appendChild(newRow);
