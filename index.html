@@ -121,6 +121,19 @@
             background-color: #e65c00;
         }
 
+        /* Container para os botões */
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Estilo do botão Limpar */
+        #clearBtn {
+            background-color: #f0690a;
+            color: black;
+        }
+
         /* Estilos para o modal */
         .modal {
             display: none;
@@ -161,6 +174,14 @@
             cursor: pointer;
             margin-top: 10px;
         }
+
+        /* Créditos no final */
+        .creditos {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.8rem;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -196,8 +217,16 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
             <tbody id="tableBody"></tbody>
         </table>
 
-        <!-- Botão para exportar dados -->
-        <button onclick="showExportModal()" style="margin-top: 20px;">Exportar Dados</button>
+        <!-- Botões lado a lado -->
+        <div class="button-container">
+            <button onclick="showExportModal()">Exportar Dados</button>
+            <button id="clearBtn" onclick="clearData()">Limpar</button>
+        </div>
+
+        <!-- Créditos -->
+        <div class="creditos">
+            Feito por Pedro Oliveira
+        </div>
 
         <!-- Modal para exibir e copiar dados -->
         <div id="exportModal" class="modal">
@@ -282,6 +311,11 @@ Pão Francês unid      R$2,50     R$1,99     20%    4un"></textarea>
             navigator.clipboard.writeText(content)
                 .then(() => alert('Conteúdo copiado!'))
                 .catch(err => console.error('Erro ao copiar:', err));
+        }
+
+        function clearData() {
+            document.getElementById('inputData').value = ''; // Limpa a caixa de texto
+            document.getElementById('tableBody').innerHTML = ''; // Limpa a tabela
         }
 
         window.onclick = function(event) {
